@@ -1,0 +1,34 @@
+{
+  "name": "appeerjs",
+  "version": "0.0.1",
+  "description": "A basic encapsulation of Native WebRTC, this would offer an easy to use and understand API for beginners out there",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TMJPEngineering/appeerjs.git"
+  },
+  "keywords": [
+    "tmj",
+    "rtc",
+    "webrtc",
+    "peer"
+  ],
+  "author": "Julius Marvin S. San Pascual <jm.sanpascual@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TMJPEngineering/appeerjs/issues"
+  },
+  "homepage": "https://github.com/TMJPEngineering/appeerjs#readme",
+  "devDependencies": {
+    "grunt-browserify": "^5.0.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-eslint": "^19.0.0"
+  },
+  "dependencies": {
+    "socket.io": "^1.5.1"
+  }
+}
