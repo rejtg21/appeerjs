@@ -1,4 +1,4 @@
-# Appeerjs
+# AppeerJS
 A basic encapsulation of Native WebRTC, this would offer an easy to use and understand API for beginners out there
 
 ## Getting Started
@@ -12,7 +12,7 @@ A basic encapsulation of Native WebRTC, this would offer an easy to use and unde
   ```html
   <script type="text/javascript" src="appeer.min.js"></script>
   ```
-3. You need to start the signaling server with the [appeerjs-server] ().
+3. You need to start the signaling server with the [appeerjs-server] (https://github.com/TMJPEngineering/appeerjs-server).
 
 4. After finishing the step three you can now connect to AppeerJS.
 
