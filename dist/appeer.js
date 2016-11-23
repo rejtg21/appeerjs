@@ -34,11 +34,17 @@ function Appeer(id, config) {
 }
 
 Appeer.prototype._initSocketIo = function (host, options) {
+    var _self = this;
+
     options = options || {};
     options.secure = true; // Always use https
     options.query = 'customId=' + this.id;
 
-    this.socket = io.connect(host, options);
+    _self.socket = io.connect(host, options);
+
+    _self.socket.on('error', function (error) {
+        _self.emit('error', { error: error });
+    });
 };
 
 Appeer.prototype._handleAddStream = function (event) {
