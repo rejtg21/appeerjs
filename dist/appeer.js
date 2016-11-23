@@ -9,8 +9,8 @@ module.exports.RTCIceCandidate = window.RTCIceCandidate ||
 },{}],2:[function(require,module,exports){
 'use strict';
 
-function Appeer(config) {
-    this.id = '';
+function Appeer(id, config) {
+    this.id = id || '';
     this.config = config || {};
     this.socket = null;
     this.remoteId = null;
@@ -36,6 +36,7 @@ function Appeer(config) {
 Appeer.prototype._initSocketIo = function (host, options) {
     options = options || {};
     options.secure = true; // Always use https
+    options.query = 'customId=' + this.id;
 
     this.socket = io.connect(host, options);
 };
@@ -86,8 +87,7 @@ Appeer.prototype._handleMessages = function () {
 
         switch (message.type) {
             case 'connect':
-                if (! _self.id) _self.id = message.id;
-                _self.emit('connection', { id: _self.id });
+                _self.emit('connection', { id: message.id });
                 break;
             case 'offer':
                 console.log('Setting remote description on offer', message.offer);

@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/TMJPEngineering/appeerjs#readme",
   "devDependencies": {
+    "grunt": "^1.0.1",
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-contrib-watch": "^1.0.0",
