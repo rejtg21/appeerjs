@@ -1,6 +1,6 @@
 {
   "name": "appeerjs",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "A basic encapsulation of Native WebRTC, this would offer an easy to use and understand API for beginners out there",
   "main": "index.js",
   "scripts": {
