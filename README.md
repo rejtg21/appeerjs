@@ -18,7 +18,7 @@ A basic encapsulation of Native WebRTC, this would offer an easy to use and unde
 4. After finishing the step three you can now connect to AppeerJS.
 
   ```javascript
-  var appeer = new Appeer({
+  var appeer = new Appeer('customId', {
     host: 'localhost',
     port: '9000'
   });
@@ -45,6 +45,12 @@ A basic encapsulation of Native WebRTC, this would offer an easy to use and unde
   appeer.on('stream', function (event) {
     var stream = event.detail.stream;
     // Do something with the stream
+  });
+  
+  // Triggers when connecting to appeer fails
+  appeer.on('error', function (event) {
+    var error = event.detail.error;
+    // Handle error
   });
   ```
   
