@@ -58,7 +58,7 @@ Appeer.prototype._handleIceCandidate = function (event) {
     if (event.candidate) {
         this.socket.emit('message', {
             type: 'candidate',
-            candidate: event.candidate,
+            payload: event.candidate,
             id: this.remoteId
         });
     }
@@ -75,7 +75,7 @@ Appeer.prototype.call = function (remoteId, localStream) {
         console.log('Creating offer');
         socket.emit('message', {
             type: 'offer',
-            offer: offer,
+            payload: offer,
             id: remoteId
         });
 
@@ -96,16 +96,16 @@ Appeer.prototype._handleMessages = function () {
                 _self.emit('connection', { id: message.id });
                 break;
             case 'offer':
-                console.log('Setting remote description on offer', message.offer);
+                console.log('Setting remote description on offer', message.payload);
                 // Set the remote description immediately
-                _self._pc.setRemoteDescription(new RTCSessionDescription(message.offer));
+                _self._pc.setRemoteDescription(new RTCSessionDescription(message.payload));
                 _self.emit('call', message);
                 break;
             case 'answer':
-                _self._handleAnswer(message.answer);
+                _self._handleAnswer(message.payload);
                 break;
             case 'candidate':
-                _self._handleCandidate(message.candidate);
+                _self._handleCandidate(message.payload);
                 break;
             default:
                 console.log(message.error);
@@ -123,7 +123,7 @@ Appeer.prototype._handleOffer = function (id) {
 
         socket.emit('message', {
             type: 'answer',
-            answer: answer,
+            payload: answer,
             id: id
         });
     }, function (error) {
