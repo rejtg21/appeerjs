@@ -20,7 +20,8 @@ A basic encapsulation of Native WebRTC, this would offer an easy to use and unde
   ```javascript
   var appeer = new Appeer('customId', {
     host: 'localhost',
-    port: '9000'
+    port: '9000',
+    debug: true // Set to true to show console logs and errors, defaults to false
   });
   ```
 5. Listen to the appeerjs events.
@@ -28,16 +29,16 @@ A basic encapsulation of Native WebRTC, this would offer an easy to use and unde
   ```javascript
   // Triggers when you successfully connects to appeerjs
   appeer.on('connection', function (event) {
-    var appeerId = event.detail.id;
+    var appeerId = event.data.id;
     console.log('My appeer id is', appeerId);
   });
   
   // Triggers when the other peers is calling you
   appeer.on('call', function (event) {
-    var call = event.detail;
+    var call = event.data.call;
     
     navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-      appeer.answer(call, stream);
+      call.answer(stream); // Answer the call with your stream
     });
   });
   
@@ -45,6 +46,12 @@ A basic encapsulation of Native WebRTC, this would offer an easy to use and unde
   appeer.on('stream', function (event) {
     var stream = event.detail.stream;
     // Do something with the stream
+  });
+  
+  // Triggers when a peer connection has been disconnected
+  appeer.on('close', function (event) {
+    var appeerId = event.data.id;
+    console.log('User ', peerId, 'has left the call');
   });
   
   // Triggers when connecting to appeer fails
@@ -61,6 +68,24 @@ A basic encapsulation of Native WebRTC, this would offer an easy to use and unde
     appeer.call(appeerId, stream);
   });
   ```
+  
+7. You can do a conference call by joining a room first
+
+  ```javascript
+  var roomId = '1234';
+  
+  appeer.join(roomId);
+  navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+    appeer.call(roomId, stream);
+  });
+  ```
+  
+8. Disconnect from a connection
+
+  ```javascript
+  var id = '123'; // Either appeer id or room id
+  apppeer.close(id);
+  ```
 
 ## Limitations
 Currently WebRTC is not supported in all browsers.  
@@ -71,14 +96,16 @@ Please see [supported browser versions] (http://caniuse.com/#feat=rtcpeerconnect
 
 ## Credits
 - [Socket.io] (http://socket.io/)
+- [EventDispatcher] (https://github.com/mrdoob/eventdispatcher.js/)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE] (https://github.com/TMJPEngineering/appeerjs/blob/master/LICENSE) file for details
 
 ## TODO
 - [ ] Unit tests
-- [ ] Group conference feature
-- [ ] Replace Native Javascript Events with a lightweight Event Library or make a new one
+- [x] Group conference feature
+- [x] Replace Native Javascript Events with a lightweight Event Library or make a new one
+- [ ] Trigger 'close' event when a single connection user has disconnected unintentionally e.g Page refresh, etc.
 
 
 
