@@ -1,10 +1,10 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports.RTCSessionDescription = window.RTCSessionDescription ||
-	window.mozRTCSessionDescription;
+    window.mozRTCSessionDescription;
 module.exports.RTCPeerConnection = window.RTCPeerConnection ||
-	window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+    window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
 module.exports.RTCIceCandidate = window.RTCIceCandidate ||
-	window.mozRTCIceCandidate;
+    window.mozRTCIceCandidate;
 
 },{}],2:[function(require,module,exports){
 'use strict';
@@ -33,7 +33,7 @@ function Appeer(id, options) {
     this.pendingCalls = [];
 
     // Initialize the connection to socket.io server
-    this._initSocketIo(options.host + ':' + options.port);
+    this._initSocketIo(options.host + ':' + options.port, options);
     logger.setLogLevel(this.options.debug);
 }
 
@@ -45,7 +45,9 @@ Appeer.prototype._initSocketIo = function (host, options) {
 
     options = options || {};
     options.secure = true; // Always use https
-    options.query = 'customId=' + this.id;
+    // add & if there's query specified
+    options.query = (options.query) ? options.query+'&' : '';
+    options.query += 'customId=' + this.id;
 
     this.socket = io.connect(host, options);
 
@@ -79,9 +81,15 @@ Appeer.prototype._initSocketIo = function (host, options) {
     });
 };
 
+// temporary subject to change
+// Change the stream specified
+Appeer.prototype.setStream = function(stream) {
+    this.stream = stream;
+}
+// end
+
 Appeer.prototype.call = function (id, stream, options) {
     var options = options || {};
-
     // Used for making offer in incoming-member message
     this.stream = stream;
     options.originator = true;
@@ -128,6 +136,27 @@ Appeer.prototype._handleMessages = function (message) {
             this.emit('call', { call: connection });
 
             break;
+        case 'joined-call':
+            var room = message.room;
+            logger.log('Joining call from', from, 'in room', room);
+            // make a call to the joined user 
+            var connection = new MediaConnection(from, this, {
+                originator: true,
+                _stream: this.stream
+            });
+
+            this.connections[from] = connection;
+            this.rooms[room][from] = from.toString();
+            if (! this.stream) {
+                logger.log('Stream not yet available, adding pending call from', from);
+                this.pendingCalls.push(from);
+            }
+
+            // this.socket.send({
+            //     type: 'answer-call',
+            //     to: room
+            // });
+            break;
         case 'incoming-call':
             var room = message.room;
 
@@ -167,6 +196,7 @@ Appeer.prototype._handleMessages = function (message) {
             break;
     }
 };
+
 
 Appeer.prototype.join = function (room, cb) {
     if (! room) return;
@@ -354,7 +384,7 @@ function MediaConnection(peerId, appeer, options) {
     // Starts an RTC Connection
     this._startConnection();
 
-    this.pc.onaddstream = this._handleAddStream.bind(appeer);
+    this.pc.onaddstream = this._handleAddStream.bind(appeer, peerId);
     this.pc.onicecandidate = this._handleIceCandidate.bind(this);
 }
 
@@ -397,9 +427,9 @@ MediaConnection.prototype.handleSdp = function (answer) {
     this.pc.setRemoteDescription(new RTCSessionDescription(answer));
 };
 
-MediaConnection.prototype._handleAddStream = function (event) {
+MediaConnection.prototype._handleAddStream = function (peerId, event) {
     logger.log('Incoming remote media stream', event);
-    this.emit('stream', { stream: event.stream });
+    this.emit('stream', { stream: event.stream, peerId: peerId });
 };
 
 MediaConnection.prototype._handleIceCandidate = function (event) {
