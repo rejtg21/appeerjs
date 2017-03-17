@@ -136,10 +136,20 @@ Appeer.prototype._handleMessages = function (message) {
             this.emit('call', { call: connection });
 
             break;
+        // added this function because when answering it didnt add members
+        // in this.rooms
+        case 'wait-calls':
+            var room = message.room;
+            // this only occurs when someone joined the call
+            for(var key in message.members) {
+                var member = message.members[key];
+                this.rooms[room][member] = member.toString();
+            }
+            break;
         case 'joined-call':
             var room = message.room;
             logger.log('Joining call from', from, 'in room', room);
-            // make a call to the joined user 
+            // make a call to the joined user
             var connection = new MediaConnection(from, this, {
                 originator: true,
                 _stream: this.stream
@@ -219,7 +229,6 @@ Appeer.prototype.close = function (id) {
 
     var connection = this.connections[id],
         room = this.rooms[id];
-
     if (connection) {
         // Close the single connection
         this.connections[id].close();
@@ -227,6 +236,8 @@ Appeer.prototype.close = function (id) {
         // Close multiple connection
         for (var member in room) {
             if (room.hasOwnProperty(member)) {
+                if(!this.connections[member]) return;
+
                 this.connections[member].close(id);
                 // TODO: Replace this line when reconnection feature is implemented
                 delete this.connections[member];
@@ -484,7 +495,6 @@ MediaConnection.prototype.close = function (room) {
     if (!! pc && pc.signalingState !== 'closed') {
         pc.close();
         pc = null;
-
         this.socket.send({
             type: 'close',
             to: this.peerId,
